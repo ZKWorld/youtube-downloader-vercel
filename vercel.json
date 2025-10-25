@@ -1,20 +1,19 @@
 {
     "version": 2,
     "builds": [
-        {
-            "src": "public/index.html",
-            "use": "@vercel/static-build"
-        },
+        /* Sirf Python build ko rakhein */
         {
             "src": "api/index.py",
             "use": "@vercel/python"
         }
     ],
     "routes": [
+        /* Root URL ko public/index.html se jor den */
         {
             "src": "/",
             "dest": "/public/index.html"
         },
+        /* API Endpoints */
         {
             "src": "/get_formats",
             "dest": "/api/index.py"
@@ -23,6 +22,7 @@
             "src": "/download_specific",
             "dest": "/api/index.py"
         },
+        /* Baaqi Static Assets */
         {
             "src": "/(.*)",
             "dest": "/public/$1"

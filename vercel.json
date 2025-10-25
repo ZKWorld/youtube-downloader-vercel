@@ -13,12 +13,10 @@
         },
         {
             "src": "/get_formats",
-            /* DEST: Seedha file name ke bajaye /api/index.py dein */
             "dest": "/api/index.py"
         },
         {
             "src": "/download_specific",
-            /* DEST: Seedha file name ke bajaye /api/index.py dein */
             "dest": "/api/index.py"
         },
         {

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced YouTube Downloader 🚀</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1f2937; 
+            color: #d1d5db; 
+        }
+        .app-card {
+            background-color: #374151; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+        .quality-button {
+            transition: all 0.2s ease-in-out;
+            transform-style: preserve-3d;
+        }
+        .quality-button:not([disabled]):hover {
+            transform: scale(1.05) translateY(-2px);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="w-full max-w-2xl app-card rounded-2xl p-8 transition-all duration-300">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-indigo-400 mb-1">
+                Advanced YT Downloader 🚀
+            </h1>
+            <p class="text-gray-400">High-Quality Video, Audio Qualities aur 8D Conversion Support!</p>
+        </header>
+
+        <div class="space-y-4 mb-8">
+            <label for="video-url" class="block text-sm font-medium text-gray-300">YouTube Link Paste Karein (Auto-Paste Ready)</label>
+            <input type="text" id="video-url" placeholder="Link yahan paste karein..."
+                    class="w-full p-4 border border-gray-600 rounded-xl bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500 shadow-inner"
+                    autofocus>
+            
+            <button id="process-button"
+                    class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold text-xl hover:bg-indigo-700 transition duration-300 shadow-lg transform hover:scale-[1.01] flex items-center justify-center">
+                <span id="button-text">🔗 Qualities Load Karein</span>
+                <svg id="loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div id="video-details-container" class="mt-8 p-6 bg-gray-700 rounded-xl border border-gray-600 hidden">
+            <div class="flex items-start space-x-4 mb-6">
+                <img id="video-thumbnail" alt="Thumbnail" class="w-24 h-24 object-cover rounded-lg shadow-md border-2 border-indigo-500">
+                <div class="flex-1">
+                    <h2 id="video-title" class="text-xl font-bold text-indigo-400 mb-1 leading-tight"></h2>
+                    <p id="video-channel" class="text-sm text-gray-400"></p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Duration: <span id="video-duration"></span> | Views: <span id="video-views"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-lg text-green-400 mb-3 border-b border-gray-600 pb-2">🎥 Video (Highest Qualities)</h3>
+                    <div id="video-quality-buttons" class="grid grid-cols-3 gap-2">
+                        </div>
+                </div>
+
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-semibold text-lg text-red-400 mb-3 border-b border-gray-600 pb-2">🎧 Audio (Formats & Effects)</h3>
+                    <div id="audio-quality-buttons" class="grid grid-cols-3 gap-2">
+                         </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="download-progress-container" class="mt-6 p-4 bg-yellow-900 rounded-lg border border-yellow-700 hidden">
+            <p class="font-semibold text-yellow-300 mb-2">⚡ Active Download:</p>
+            <div id="progress-bar" class="w-full bg-gray-600 rounded-full h-2.5">
+                <div id="progress-fill" class="bg-yellow-400 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-sm text-yellow-400 mt-1 text-center">0% - Initializing...</p>
+        </div>
+        
+        <div id="result-message" class="mt-6 p-4 rounded-xl text-center font-semibold hidden"></div>
+
+        <div class="mt-10 pt-4 border-t border-gray-700">
+            <h3 class="text-xl font-bold text-gray-300 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-8V7a1 1 0 012 0v1h1a1 1 0 110 2h-3zm-2 4a1 1 0 100 2h4a1 1 0 100-2h-4z" clip-rule="evenodd" />
+                </svg>
+                Download History
+                <button id="clear-history" class="text-xs text-red-400 hover:text-red-500 ml-4"> (Clear All)</button>
+            </h3>
+            <ul id="history-list" class="space-y-2 text-sm">
+                </ul>
+            <p id="no-history" class="text-gray-500 text-sm mt-2 hidden">No download history found.</p>
+        </div>
+    </div>
+
+    <script>
+        const GET_FORMATS_URL = 'http://127.0.0.1:5000/get_formats';
+        const DOWNLOAD_URL = 'http://127.0.0.1:5000/download_specific';
+        const MAX_HISTORY = 5;
+
+        let currentVideoData = {}; 
+
+        // === Utility Functions ===
+        function setButtonState(isLoading, text = '🔗 Qualities Load Karein', state = 'default') {
+            const button = document.getElementById('process-button');
+            const buttonTextSpan = document.getElementById('button-text');
+            const spinner = document.getElementById('loading-spinner');
+
+            button.disabled = isLoading;
+            buttonTextSpan.textContent = text;
+            spinner.classList.toggle('hidden', !isLoading);
+
+            button.classList.remove('bg-indigo-600', 'hover:bg-indigo-700', 'bg-red-600', 'hover:bg-red-700', 'bg-green-600', 'hover:bg-green-700');
+
+            if (state === 'loading') {
+                button.classList.add('bg-red-600', 'hover:bg-red-700');
+            } else if (state === 'success') {
+                button.classList.add('bg-green-600', 'hover:bg-green-700');
+            } else {
+                 button.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            }
+        }
+
+        function displayResult(message, isError) {
+            const resultDiv = document.getElementById('result-message');
+            resultDiv.innerHTML = message;
+            resultDiv.classList.remove('hidden', 'bg-red-900', 'text-red-300', 'bg-green-900', 'text-green-300');
+            resultDiv.classList.add('p-4');
+            
+            if (isError) {
+                resultDiv.classList.add('bg-red-900', 'text-red-300', 'border', 'border-red-700');
+            } else {
+                resultDiv.classList.add('bg-green-900', 'text-green-300', 'border', 'border-green-700');
+            }
+
+            setTimeout(() => {
+                resultDiv.classList.add('hidden');
+                resultDiv.classList.remove('p-4');
+            }, 10000);
+        }
+        
+        // Auto-Paste: Agar clipboard mein link hai to khud ba khud process shuru ho jaye.
+        function autoPaste() {
+            const urlInput = document.getElementById('video-url');
+            if (document.hasFocus() && 'clipboard' in navigator && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(text => {
+                    if (text && (text.includes('youtube.com') || text.includes('youtu.be'))) {
+                        urlInput.value = text.trim();
+                        getFormats(); 
+                    }
+                }).catch(err => {
+                    console.warn("Clipboard access denied or failed:", err);
+                });
+            }
+        }
+
+        // History functions (unchanged)
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('downloadHistory') || '[]');
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            
+            if (history.length === 0) {
+                document.getElementById('no-history').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('no-history').classList.add('hidden');
+
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'flex justify-between items-center p-3 bg-gray-600 rounded-lg hover:bg-gray-500 transition duration-150';
+                li.innerHTML = `
+                    <div class="truncate mr-4">
+                        <p class="font-medium text-gray-200 truncate">${item.title}</p>
+                        <p class="text-xs text-gray-400">${item.format} | ${item.date}</p>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function addToHistory(title, format) {
+            let history = JSON.parse(localStorage.getItem('downloadHistory') || '[]');
+            const now = new Date();
+            const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+
+            const newItem = { title, format, date: dateStr };
+            history.unshift(newItem); 
+            history = history.slice(0, MAX_HISTORY);
+            localStorage.setItem('downloadHistory', JSON.stringify(history));
+            loadHistory();
+        }
+
+        document.getElementById('clear-history').addEventListener('click', () => {
+            if (confirm('Kya aap waqai download history delete karna chahte hain?')) {
+                 localStorage.removeItem('downloadHistory');
+                 loadHistory();
+            }
+        });
+
+
+        // === Stage 1: Get Formats ===
+
+        async function getFormats() {
+            const urlInput = document.getElementById('video-url');
+            const url = urlInput.value.trim();
+            const detailsContainer = document.getElementById('video-details-container');
+
+            if (!url || (!url.includes('youtube.com') && !url.includes('youtu.be'))) {
+                displayResult('Meherbani karkey aik sahi YouTube video link paste karein.', true);
+                detailsContainer.classList.add('hidden');
+                return;
+            }
+
+            currentVideoData.url = url;
+
+            setButtonState(true, 'Metadata aur Qualities Load Ho Rahi Hain...', 'loading');
+            detailsContainer.classList.add('hidden');
+            document.getElementById('result-message').classList.add('hidden');
+            document.getElementById('download-progress-container').classList.add('hidden');
+
+
+            try {
+                const response = await fetch(GET_FORMATS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    currentVideoData.title = result.title;
+                    displayFormats(result);
+                    setButtonState(false, 'Naya Link Check Karein', 'success'); 
+                } else {
+                    displayResult(`❌ Error: ${result.message || 'Server se sahi jawab nahi mila.'}`, true);
+                    setButtonState(false, '🔗 Qualities Load Karein');
+                }
+
+            } catch (error) {
+                displayResult('❌ CONNECTION ERROR: Python server (app.py) chalu nahi hai ya URL galat hai.', true);
+                setButtonState(false, '🔗 Qualities Load Karein');
+            }
+        }
+        
+        function displayFormats(data) {
+            const videoContainer = document.getElementById('video-quality-buttons');
+            const audioContainer = document.getElementById('audio-quality-buttons');
+            videoContainer.innerHTML = '';
+            audioContainer.innerHTML = '';
+            
+            // Video Info Update
+            document.getElementById('video-thumbnail').src = data.thumbnail;
+            document.getElementById('video-title').textContent = data.title;
+            document.getElementById('video-channel').textContent = data.channel;
+            document.getElementById('video-duration').textContent = data.duration;
+            document.getElementById('video-views').textContent = data.views.toLocaleString();
+            
+            // 1. Video Formats
+            data.video_formats.forEach(f => {
+                const buttonColor = (f.resolution === '1080p' || f.resolution === '1440p' || f.resolution === '2160p' ? 'bg-green-600 hover:bg-green-700' : 'bg-indigo-600 hover:bg-indigo-700');
+                
+                const button = document.createElement('button');
+                button.className = `quality-button p-2 rounded-lg text-white font-semibold text-sm shadow-md ${buttonColor}`;
+                button.setAttribute('data-format-code', f.format_code);
+                button.setAttribute('data-format-name', f.format_name);
+                button.onclick = () => startDownload(button);
+                button.textContent = f.resolution;
+                videoContainer.appendChild(button);
+            });
+
+            // 2. Audio Formats
+            data.audio_formats.forEach(f => {
+                let buttonColor = 'bg-gray-500 hover:bg-gray-600';
+                
+                if (f.resolution.includes('Highest')) {
+                    buttonColor = 'bg-red-600 hover:bg-red-700';
+                } else if (f.resolution.includes('8D Audio')) {
+                    buttonColor = 'bg-purple-600 hover:bg-purple-700 font-extrabold';
+                } else if (f.abr > 128) {
+                    buttonColor = 'bg-red-500 hover:bg-red-600';
+                }
+
+                const button = document.createElement('button');
+                button.className = `quality-button p-2 rounded-lg text-white text-xs shadow-md ${buttonColor}`;
+                button.setAttribute('data-format-code', f.format_code);
+                button.setAttribute('data-format-name', f.format_name);
+                button.onclick = () => startDownload(button);
+                button.textContent = f.resolution.includes('8D Audio') ? f.resolution : `${f.ext} ${f.abr}kbps`;
+                audioContainer.appendChild(button);
+            });
+            
+            document.getElementById('video-details-container').classList.remove('hidden');
+        }
+
+        // === Stage 2: Start Download and Progress Simulation (unchanged) ===
+        
+        async function startDownload(buttonElement) {
+            const formatCode = buttonElement.getAttribute('data-format-code');
+            const formatName = buttonElement.getAttribute('data-format-name');
+            const is8d = formatName.includes('8D Surround Sound');
+            const isVideo = formatName.includes('MP4') && !is8d;
+
+
+            document.querySelectorAll('.quality-button').forEach(btn => btn.disabled = true);
+            setButtonState(true, `Downloading ${formatName}... (Terminal Check)`);
+
+            const progressContainer = document.getElementById('download-progress-container');
+            const progressBar = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressText.textContent = `0% - Starting download for ${formatName}...`;
+            
+            // Simulate Progress (FFmpeg/8D takes longer)
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                if (progress < 90) { 
+                    progress += is8d ? 1 : (isVideo ? 2 : 4); 
+                    progressText.textContent = `${progress}% - ${is8d ? 'Applying 8D Effect' : 'Downloading'}... (Terminal Check Karein)`;
+                    progressBar.style.width = `${progress}%`;
+                }
+            }, 1000);
+
+
+            try {
+                // Start Actual Download (This will block the server)
+                const response = await fetch(DOWNLOAD_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url: currentVideoData.url,
+                        format_code: formatCode,
+                        title: currentVideoData.title,
+                        format_name: formatName
+                    }),
+                });
+
+                const result = await response.json();
+                
+                // Download Complete (Stop Simulation and Reset UI)
+                clearInterval(progressInterval);
+                
+                document.querySelectorAll('.quality-button').forEach(btn => btn.disabled = false);
+                setButtonState(false, 'Naya Link Check Karein', 'success'); 
+                progressContainer.classList.add('hidden');
+
+
+                if (response.ok && result.status === 'success') {
+                    progressBar.style.width = '100%';
+                    displayResult(`✅ Download mukammal! **${currentVideoData.title}** (${formatName}) aapke folder mein save ho gayi hai.`, false);
+                    addToHistory(currentVideoData.title, formatName); 
+
+                } else {
+                    displayResult(`❌ Download ERROR: ${result.message}`, true);
+                    progressBar.style.width = '0%';
+                }
+
+            } catch (error) {
+                // Network Error
+                clearInterval(progressInterval);
+                document.querySelectorAll('.quality-button').forEach(btn => btn.disabled = false);
+                setButtonState(false, 'Naya Link Check Karein');
+                progressContainer.classList.add('hidden');
+                displayResult('❌ CONNECTION ERROR: Server se rabta toot gaya ya network masla hai.', true);
+            }
+        }
+
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHistory();
+            document.getElementById('process-button').addEventListener('click', getFormats);
+            setTimeout(autoPaste, 500);
+        });
+    </script>
+</body>
+</html>

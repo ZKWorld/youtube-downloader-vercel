@@ -1,24 +1,20 @@
 {
     "version": 2,
     "builds": [
-        /* 1. Static Files (Frontend) ke liye */
         {
             "src": "public/index.html",
             "use": "@vercel/static-build"
         },
-        /* 2. Python API (Backend) ke liye */
         {
             "src": "api/index.py",
             "use": "@vercel/python"
         }
     ],
     "routes": [
-        /* Zaroori: Root path ko seedha public/index.html serve karein */
         {
             "src": "/",
             "dest": "/public/index.html"
         },
-        /* API Endpoints */
         {
             "src": "/get_formats",
             "dest": "/api/index.py"
@@ -27,7 +23,6 @@
             "src": "/download_specific",
             "dest": "/api/index.py"
         },
-        /* Static Assets (CSS/JS etc.) */
         {
             "src": "/(.*)",
             "dest": "/public/$1"

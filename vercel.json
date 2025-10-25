@@ -7,6 +7,12 @@
         }
     ],
     "routes": [
+        /* FIX: Root URL (/) ko public/index.html se jorne ke liye */
+        {
+            "src": "/",          
+            "dest": "/public/index.html" 
+        },
+        /* Baaqi Endpoints */
         {
             "src": "/get_formats",
             "dest": "api/index.py"
@@ -15,6 +21,7 @@
             "src": "/download_specific",
             "dest": "api/index.py"
         },
+        /* Static Assets (CSS/JS) */
         {
             "src": "/(.*)",
             "dest": "public/$1"

@@ -13,15 +13,17 @@
         },
         {
             "src": "/get_formats",
-            "dest": "api/index.py"
+            /* DEST: Seedha file name ke bajaye /api/index.py dein */
+            "dest": "/api/index.py"
         },
         {
             "src": "/download_specific",
-            "dest": "api/index.py"
+            /* DEST: Seedha file name ke bajaye /api/index.py dein */
+            "dest": "/api/index.py"
         },
         {
             "src": "/(.*)",
-            "dest": "public/$1"
+            "dest": "/public/$1"
         }
     ]
 }
